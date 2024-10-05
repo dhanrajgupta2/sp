@@ -1,0 +1,116 @@
+exp 5 : Write a Java program (using OOP features) to implement the following scheduling algorithms: 
+FCFS, SJF (Preemptive), Shortest Remaining Time First (SRTF), 
+Priority (Non-Preemptive), Priority (Preemptive) and Round Robin (Preemptive).
+
+
+( SimpleFCFS another tab with this name )
+
+import java.util.Scanner;
+
+public class SimpleFCFS {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+
+        int[] burstTime = new int[n];
+        int[] waitingTime = new int[n];
+        int[] turnAroundTime = new int[n];
+
+        System.out.println("Enter burst time for each process:");
+        for (int i = 0; i < n; i++) {
+            System.out.print("Process " + (i + 1) + ": ");
+            burstTime[i] = sc.nextInt();
+        }
+
+        waitingTime[0] = 0; 
+        for (int i = 1; i < n; i++) {
+            waitingTime[i] = waitingTime[i - 1] + burstTime[i - 1];
+        }
+
+        for (int i = 0; i < n; i++) {
+            turnAroundTime[i] = waitingTime[i] + burstTime[i];
+        }
+
+        System.out.println("\nProcess\tBurst Time\tWaiting Time\tTurnaround Time");
+        for (int i = 0; i < n; i++) {
+            System.out.println("P" + (i + 1) + "\t\t" + burstTime[i] + "\t\t" + waitingTime[i] + "\t\t" + turnAroundTime[i]);
+        }
+
+        float totalWT = 0, totalTAT = 0;
+        for (int i = 0; i < n; i++) {
+            totalWT += waitingTime[i];
+            totalTAT += turnAroundTime[i];
+        }
+        System.out.println("\nAverage Waiting Time: " + (totalWT / n));
+        System.out.println("Average Turnaround Time: " + (totalTAT / n));
+
+        sc.close();
+    }
+}
+
+( SJF another tab with this name )
+
+import java.util.*;
+
+class Process {
+    int id; // Process ID
+    int burstTime; // Burst time of the process
+
+    Process(int id, int burstTime) {
+        this.id = id;
+        this.burstTime = burstTime;
+    }
+}
+
+public class SJF {
+    
+    public static void findAverageTime(List<Process> processes) {
+        // Sort processes based on burst time
+        processes.sort(Comparator.comparingInt(p -> p.burstTime));
+
+        int totalWaitingTime = 0;
+        int totalTurnAroundTime = 0;
+        int n = processes.size();
+        int[] waitingTime = new int[n];
+        int[] turnAroundTime = new int[n];
+
+        // Calculate waiting time and turnaround time
+        for (int i = 0; i < n; i++) {
+            if (i == 0) {
+                waitingTime[i] = 0; // First process has no waiting time
+            } else {
+                waitingTime[i] = processes.get(i - 1).burstTime + waitingTime[i - 1];
+            }
+            turnAroundTime[i] = waitingTime[i] + processes.get(i).burstTime;
+
+            totalWaitingTime += waitingTime[i];
+            totalTurnAroundTime += turnAroundTime[i];
+        }
+
+        // Calculate average waiting time and turnaround time
+        double averageWaitingTime = (double) totalWaitingTime / n;
+        double averageTurnAroundTime = (double) totalTurnAroundTime / n;
+
+        // Display results
+        System.out.println("Process ID\tBurst Time\tWaiting Time\tTurnaround Time");
+        for (int i = 0; i < n; i++) {
+            System.out.printf("%d\t\t%d\t\t%d\t\t%d\n", processes.get(i).id, processes.get(i).burstTime, waitingTime[i], turnAroundTime[i]);
+        }
+        System.out.printf("Average Waiting Time: %.2f\n", averageWaitingTime);
+        System.out.printf("Average Turnaround Time: %.2f\n", averageTurnAroundTime);
+    }
+
+    public static void main(String[] args) {
+        List<Process> processes = new ArrayList<>();
+
+        // Example processes
+        processes.add(new Process(1, 6));
+        processes.add(new Process(2, 8));
+        processes.add(new Process(3, 7));
+        processes.add(new Process(4, 3));
+
+        findAverageTime(processes);
+    }
+}
